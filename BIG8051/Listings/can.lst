@@ -1,0 +1,262 @@
+C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE CAN
+OBJECT MODULE PLACED IN .\BIG8051\Objects\can.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\can.c LARGE OPTIMIZE(1,SPEED) BROWSE INCDIR(.\BIG8051\In
+                    -clude) DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\can.lst) TABS(3) OBJECT(.\BIG8051\Objects\can.obj)
+
+line level    source
+
+   1          #include <C8051F040.h>                 // SFR declarations
+   2          #include <osc.h>
+   3          #include <can.h>
+   4          
+   5          //******************************************************************************
+   6          //Functii CAN
+   7          //******************************************************************************
+   8          
+   9          CAN_Msg CAN_MsgTX, CAN_MsgRX; 
+  10          
+  11          //Initializare CAN
+  12             void CAN_Init(void) {
+  13   1      /* Calculaeza durata unui bit :
+  14   1         
+  15   1      System clock        f_sys = 25 MHz
+  16   1      System clock      t_sys = 1/f_sys = 40 ns.
+  17   1      Cuanta de timp CAN  tq = t_sys (la BRP = 0)
+  18   1      
+  19   1      Rata de bit dorita este  1 MBit/s, durata dorita a unui bit este 1000 ns.
+  20   1      Durata unui bit = 25 tq = 1000 ns
+  21   1      Rata de bit este 1 MBit/s = rata de bit dorita
+  22   1      
+  23   1      Lungimea magistralei CAN = 10 m, cu 5 ns/m intarziere.
+  24   1      Durata de propagare a semnalului: 2*(intarziere transceiver + intarziere propagare pe magistrala) = 400 ns
+  25   1      (intarzierea maxima între nodurile CAN)
+  26   1      
+  27   1      Prop_Seg = 10 tq = 400 ns ( >= 400 ns).
+  28   1      Sync_Seg = 1 tq
+  29   1      
+  30   1      Phase_seg1 + Phase_Seg2 = (24-10) tq = 14 tq
+  31   1      Phase_seg1 <= Phase_Seg2,  =>  Phase_seg1 = 6 tq and Phase_Seg2 = 8 tq
+  32   1      SJW = (min(Phase_Seg1, 4) tq = 4 tq
+  33   1      
+  34   1      TSEG1 = (Prop_Seg + Phase_Seg1 - 1) = 15
+  35   1      TSEG2 = (Phase_Seg2 - 1)            = 7
+  36   1      SJW_p = (SJW - 1)                   = 3
+  37   1      
+  38   1      Bit Timing Register = BRP + SJW_p * 0x0040 = TSEG1 * 0x0100 + TSEG2 * 0x1000 = 2640
+  39   1      
+  40   1      Toleranta semnalului de tact df :
+  41   1      
+  42   1      A: df < min(Phase_Seg1, Phase_Seg2) / (2 * (13*bit_time - Phase_Seg2))
+  43   1      B: df < SJW / (20 * bit_time)
+  44   1      
+  45   1      A: df < 6/(2*(13*25-8)) = 6/(325-8) = 6/317 = 1,8927%
+  46   1      B: df < 4/(20*25)                   = 4/500 = 0.8%
+  47   1      
+  48   1      */
+  49   1         unsigned int i;
+  50   1         unsigned char SFRPAGE_save = SFRPAGE;  // salveaza SFRPAGE
+  51   1         SFRPAGE = CAN0_PAGE;
+  52   1      
+  53   1         CAN0CN  |= 0x41;           // seteaza Test, CCE si INIT
+  54   1         
+C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 2   
+
+  55   1         //CAN0TST = 0x18;          // Silent + Lback
+  56   1         
+  57   1         CAN0ADR  = BITREG;         // selecteaza Bit Timing Register
+  58   1         CAN0DAT  = 0x7FC1;         // programeaza rata de bit (1 Mbit/sec) si configuratia unui bit
+  59   1      
+  60   1         CAN0ADR  = IF1CMDMSK;      // Selecteaza Command Mask 1
+  61   1         CAN0DATL  = 0xFF;             // Configureaza IF1 pentru scriere pentru toate campurile
+  62   1      
+  63   1         CAN0ADR  = IF1ARB1;        // Selecteaza IF1ARB1
+  64   1         CAN0DATL  = 0x00;
+  65   1         CAN0DATL  = 0x00;          // pune MsgVal = 0, XTD = 0, Dir=0 in IF1ARB2
+  66   1         
+  67   1         for (i=1; i<33; i++){
+  68   2            CAN0ADR = IF1CMDRQST;   // dezactiveaza toate obiectele
+  69   2            CAN0DATL = i;
+  70   2         }
+  71   1      
+  72   1         CAN0ADR  = IF1CMDMSK;   // Selecteaza Command Mask 1
+  73   1         CAN0DATL  = 0x87;       // Configureaza IF1 pentru scriere: 1000 0111: WRITE to CAN RAM, write data bytes,
+  74   1                                             // set TXrqst/NewDat, clr IntPnd
+  75   1         
+  76   1         CAN0ADR  = IF2CMDMSK;   // Selecteaza Command Mask 2
+  77   1         CAN0DATL = 0x1F;        // Configureaza IF2 pentru citire: 0001 1111: READ CAN RAM, read Control, data by
+             -tes,
+  78   1                                             // clr NewDat and IntPnd
+  79   1         
+  80   1         CAN0CN  |= 0x02;        // Valideaza intreruperile IE
+  81   1         CAN0CN  &= ~0x41;       // Sterge bitii CCE and INIT, s-a terminat initializarea, porneste controlerul CA
+             -N
+  82   1      
+  83   1         CAN_MsgTX.ID = CAN_MsgRX.ID = 0;          // initializeaza structurile folosite pentru transmisie si receptie
+  84   1         CAN_MsgTX.DLC = CAN_MsgRX.DLC = 0;
+  85   1         CAN_MsgTX.NewDat = CAN_MsgRX.NewDat = 0;
+  86   1         for(i=0; i<8; i++){
+  87   2            CAN_MsgTX.Date.Byte[i] = 0;
+  88   2            CAN_MsgRX.Date.Byte[i] = 0;
+  89   2         }
+  90   1         EIE2 |= 0x20;           // valideaza intreruperile de la CAN0
+  91   1      
+  92   1         SFRPAGE = SFRPAGE_save;
+  93   1      }
+  94          
+  95          
+  96          //Initializeaza un Message Object
+  97          int CAN_Init_Object(char MsgObjNum, char CANID_Type, unsigned long CANID, char ObjDLC, char MsgObjDir)
+  98          {               
+  99   1         unsigned int val;
+ 100   1         unsigned char SFRPAGE_save = SFRPAGE;  // salveaza SFRPAGE
+ 101   1      
+ 102   1         if(MsgObjNum > 32) return 0;
+ 103   1         if ((CANID_Type != CANID_XTD) && (CANID_Type != CANID_STD)) return 0; // CANID_TYpe necunoscut
+ 104   1         if ((CANID_Type == CANID_XTD) && (CANID > 0x1FFFFFFF)) return 0;     // CAN_ID prea mare pentru XTD
+ 105   1         if ((CANID_Type == CANID_STD) && (CANID > 0x07FF)) return 0;         // CAN_ID prea mare pentru STD
+ 106   1      
+ 107   1        SFRPAGE = CAN0_PAGE;
+ 108   1      
+ 109   1        CAN0ADR = IF1CMDMSK;     // Selecteaza Command Mask 1
+ 110   1        CAN0DATL = 0xB0;         // 1011 0000: Selecteaza scriere cu IF1 Arb, Control
+ 111   1      
+ 112   1        CAN0ADR = IF1ARB1;       // Selecteaza Arb 1
+ 113   1      
+ 114   1         if (CANID_Type == CANID_XTD){
+C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 3   
+
+ 115   2            CAN0DAT = (unsigned int) (CANID & 0x0000FFFF);        // incarca cei mai putin semnificativi 16 biti ai ID-ul
+             -ui extins
+ 116   2            val = (unsigned int)(((CANID >> 16 ) & 0x0000FFFF) | 0x0000C000); // pregateste cei mai semnificativi 13
+             - biti si pune MsgVal si XTD pe 1
+ 117   2         }
+ 118   1         else {
+ 119   2            CAN0DAT = 0;                              // ID-ul e standard, IF1ARB1 nu conteaza
+ 120   2            val = ((CANID << 2) & 0x1FFF) | 0x8000;   // pregateste ID-ul standard aliniat la stanga si pune MsgVal=1 
+             -si XTD=0 
+ 121   2         }
+ 122   1         if (MsgObjDir == MSGOBJ_TX)
+ 123   1               val |= 0x2000;          // adauga Dir = 1
+ 124   1      
+ 125   1         CAN0DAT = val;          // scrie in IF1ARB2
+ 126   1      
+ 127   1         val = ObjDLC;                 // pregateste pentru incarcare campul DLC
+ 128   1         if (MsgObjDir == MSGOBJ_RX)
+ 129   1            val |= 0x0480;             // RxIE=1, EOB=1 (mesaj individual), fara raspuns automat la cadre de cerere
+ 130   1      
+ 131   1         CAN0DAT = val;                // scrie in IF1MSGC
+ 132   1      
+ 133   1         CAN0ADR = IF1CMDRQST;   // Selecteaza Command Request reg.
+ 134   1         CAN0DAT = MsgObjNum;    // -- declanseaza scrierea registrelor TF1 in Msg Obj
+ 135   1         // 3-6 perioade ale CAN clock pentru a finaliza scrierea registrelor IF1 in Msg Obj.
+ 136   1      
+ 137   1         SFRPAGE = SFRPAGE_save;
+ 138   1         return 1;
+ 139   1      }
+ 140          
+ 141          
+ 142          //Transmite un mesaj cu un obiect de iesire
+ 143          void CAN_Transmit (char MsgObjNum, unsigned char NewID, CAN_Msg *ptr)
+ 144          {
+ 145   1         int i;
+ 146   1         unsigned char SFRPAGE_save = SFRPAGE;  // salveaza SFRPAGE
+ 147   1         SFRPAGE  = CAN0_PAGE;
+ 148   1      
+ 149   1         CAN0ADR  = IF1CMDMSK;      // Selecteaza Command Mask 1
+ 150   1         if (NewID){                // Transmite cu un alt CAN ID decat a fost configurat initial?
+ 151   2            CAN0DAT  = 0x00B7;      // Configureaza pentru TX: 1011 0111, comanda TxRqst, scrie 8 octeti
+ 152   2            CAN0ADR = IF1ARB2;      // Selecteaza direct IF1ARB2 (doar mesaje STD)
+ 153   2            CAN0DAT = (((ptr->ID) << 2) & 0x1FFF) | 0xA000; //  incarca CAN ID aliniat la stanga si pune MsgVal=Dir=
+             -1, XTD=0
+ 154   2            CAN0DAT = (unsigned int) (ptr->DLC);   // incarca DLC 
+ 155   2         }
+ 156   1         else
+ 157   1            CAN0DAT  = 0x0087;      // Configureaza pentru TX: 1000 0111, comanda TxRqst, scrie 8 octeti, pastreaza 
+             -Arb si Control
+ 158   1      
+ 159   1         CAN0ADR  = IF1DATA1;       // Selecteaza primul buffer de date
+ 160   1      
+ 161   1         for (i = 0; i<8; i+=2){    // Scrie 8 octeti, incepand cu LSB
+ 162   2            CAN0DATH = ptr->Date.Byte[i+1];  
+ 163   2            CAN0DATL = ptr->Date.Byte[i];
+ 164   2         }
+ 165   1         CAN0ADR  = IF1CMDRQST;     // Selecteaza Command Request Reg.
+ 166   1         CAN0DATL = MsgObjNum;      // Transfera registrele IF1 in Msg Obj
+ 167   1      
+ 168   1         SFRPAGE  = SFRPAGE_save;
+ 169   1      }
+ 170          
+ 171          // Preia un mesaj receptionat intr-un obiect de intrare
+C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 4   
+
+ 172          void CAN_Receive (char MsgObjNum, CAN_Msg *ptr)
+ 173          {
+ 174   1         int i;
+ 175   1         unsigned char SFRPAGE_save = SFRPAGE;  // salveaza SFRPAGE
+ 176   1         SFRPAGE  = CAN0_PAGE;
+ 177   1      
+ 178   1         // RX-IF2 operation may interrupt TX-IF1 operation
+ 179   1         CAN0ADR  = IF2CMDMSK;   // Selecteaza Command Mask 2
+ 180   1         CAN0DATL = 0x3F;        // Configureaza IF2 pentru citire: 0011 1111: READ CAN RAM, read Arb, Control, da
+             -ta bytes,
+ 181   1                                             // clr NewDat and IntPnd
+ 182   1      
+ 183   1         CAN0ADR  = IF2CMDRQST;  // IF2 deja configurat pentru citire date
+ 184   1         CAN0DATL = MsgObjNum;   // Transfera din Msg Obj "MsgObjNum" in IF2
+ 185   1      
+ 186   1         for(i=0;i<2;i++);       // asteapta finalizarea transferului
+ 187   1      
+ 188   1         CAN0ADR  = IF2ARB2;     // Selecteaza adresa Arb 2
+ 189   1         
+ 190   1         ptr->ID = (CAN0DAT >> 2) & 0x07FF;     // Preia CAN ID STD
+ 191   1         ptr->DLC = (unsigned char) (CAN0DAT & 0x000F);  // Preia DLC
+ 192   1      
+ 193   1         for (i = 0; i<8; i+=2){       // Citeste 8 octeti, incepand cu LSB
+ 194   2            ptr->Date.Byte[i+1] = CAN0DATH;  
+ 195   2            ptr->Date.Byte[i] = CAN0DATL;
+ 196   2         }
+ 197   1         ptr->NewDat = 1;              // semnaleaza adate noi
+ 198   1         SFRPAGE  = SFRPAGE_save;
+ 199   1      }
+ 200          
+ 201          ////////////////////////////////////////////////////////////////////////////////
+ 202          //Functia de intrerupere CAN
+ 203          ////////////////////////////////////////////////////////////////////////////////
+ 204          
+ 205          void CAN_Isr (void) interrupt 19
+ 206          {
+ 207   1         unsigned int IntID;
+ 208   1         do{
+ 209   2            CAN0ADR = INTREG;       // Selecteaza INTREG
+ 210   2            IntID = CAN0DAT;        // citeste INTREG - codul intreruperii de prioritate maxima
+ 211   2            switch (IntID){   
+ 212   3               case 0x8000:         // intrerupere de stare, daca e activata de SIE in CAN0CN
+ 213   3                  IntID = CAN0STA;  // achita intreruperea prin citirea registrului de stare
+ 214   3                  break;      
+ 215   3               case 2:              // intrerupere cauzata de obiectul 2 (de receptie)
+ 216   3                  CAN_Receive(2,&CAN_MsgRX);    // preia mesajul primit
+ 217   3                  break;   
+ 218   3               default: break;
+ 219   3            }
+ 220   2         }
+ 221   1         while(IntID);              // reia cat timp mai sunt si alte solicitari de intrerupre
+ 222   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1432    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     55    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 5   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

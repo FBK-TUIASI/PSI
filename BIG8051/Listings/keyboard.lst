@@ -1,0 +1,130 @@
+C51 COMPILER V9.59.0.0   KEYBOARD                                                          11/14/2024 17:16:23 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE KEYBOARD
+OBJECT MODULE PLACED IN .\BIG8051\Objects\keyboard.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\keyboard.c LARGE OPTIMIZE(1,SPEED) BROWSE INCDIR(.\BIG80
+                    -51\Include) DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\keyboard.lst) TABS(3) OBJECT(.\BIG8051\Objects\keyboard.obj)
+
+line level    source
+
+   1          #include <C8051F040.h>                 // SFR declarations
+   2          #include <keyboard.h>
+   3          #include <timer.h>
+   4          #include <osc.h>
+   5          #include <lcd.h>
+   6          
+   7          unsigned char key, last_key, keypress_detected, key_released; // variabile globale
+   8          
+   9          #define T3INT_10MS 10 * SYSCLK/12/1000
+  10          
+  11          void KEYB_Init(void){
+  12   1         unsigned char SFRPAGE_save = SFRPAGE; // Save the current SFRPAGE
+  13   1      
+  14   1         SFRPAGE = CONFIG_PAGE;
+  15   1      
+  16   1         key = keypress_detected = 0;
+  17   1         key_released = 1;
+  18   1         
+  19   1         P4 &= 0x0F;       // Pune 0 pe coloane (P4.7 - P4.4)
+  20   1         P4 |= 0x80;       // comandã pe 1 prima coloanã (P4.7)
+  21   1      
+  22   1         Timer3_Init(T3INT_10MS);   // initializeaza Timer 3
+  23   1         
+  24   1         SFRPAGE = SFRPAGE_save; 
+  25   1      }
+  26          
+  27          char KEYB_Input(void){
+  28   1         unsigned char val;
+  29   1         EA    =  0;       // dezactivare intreruperi
+  30   1         val = key;
+  31   1         if (key) last_key = key;
+  32   1         key   =  0;
+  33   1         EA    = 1;        // reactivare intreruperi
+  34   1         return val;
+  35   1      }
+  36          
+  37          unsigned char KEYB_GetByteHex(void){
+  38   1         return 16 * KEYB_GetDigitHex() + KEYB_GetDigitHex();  
+  39   1      }
+  40          
+  41          unsigned char KEYB_GetDigitHex(void){
+  42   1         unsigned char ch;
+  43   1         
+  44   1         do ch = KEYB_Input();
+  45   1         while (!((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')));
+  46   1         LCD_Putch(ch);
+  47   1         
+  48   1         if(ch >= '0' && ch <= '9') ch = ch - '0';
+  49   1         else if(ch >= 'A' && ch <= 'F') ch = ch - 'A' + 10;
+  50   1         else ch = ch - 'a' + 10;
+  51   1         return ch;  
+  52   1      }
+  53          
+  54          void Timer3_ISR (void) interrupt 14    // handler intrerupere Timer3 
+C51 COMPILER V9.59.0.0   KEYBOARD                                                          11/14/2024 17:16:23 PAGE 2   
+
+  55          {
+  56   1      unsigned char val;
+  57   1      
+  58   1         if(TF3){                   // intrerupere la depasire Timer 3?
+  59   2            TF3 = 0;                   // Daca da, sterge flagul de intrerupere la depasire
+  60   2            SFRPAGE = CONFIG_PAGE;     // permite accesul la P4
+  61   2            val = P4;                  // citeste P4
+  62   2            if(!keypress_detected){    // daca nu era detectata anterior nicio apasare
+  63   3               if(val & 0x0F){               // daca s-a apasat intre timp o tasta
+  64   4                  keypress_detected = val;         // memoreaza codul tastei apaste
+  65   4                  return;                          // revine fara sa se treaca la urmatoarea coloana
+  66   4               }
+  67   3            }
+  68   2            else {                     // daca exista o apasare detectata anterior
+  69   3               if(val == keypress_detected) {   // daca aceeasi tasta a ramas apasata
+  70   4                  if(key_released){                // daca inainte de detectare nu era nicio tasta apasata        
+  71   5                     key_released = 0;                // acum este apasata o tasta
+  72   5                     switch(val){                     // decodifica tasta apasata si pune codul ASCII in key
+  73   6                        case 0x88: key = 'D'; break;     // codul tastei apasate ferm corespunde tastei "D"
+  74   6                        case 0x84: key = 'C'; break;     // ...................
+  75   6                        case 0x82: key = 'B'; break;
+  76   6                        case 0x81: key = 'A'; break;
+  77   6                        case 0x48: key = '#'; break;
+  78   6                        case 0x44: key = '9'; break;
+  79   6                        case 0x42: key = '6'; break;
+  80   6                        case 0x41: key = '3'; break;
+  81   6                        case 0x28: key = '0'; break;
+  82   6                        case 0x24: key = '8'; break;
+  83   6                        case 0x22: key = '5'; break;
+  84   6                        case 0x21: key = '2'; break;
+  85   6                        case 0x18: key = '*'; break;
+  86   6                        case 0x14: key = '7'; break;
+  87   6                        case 0x12: key = '4'; break;
+  88   6                        case 0x11: key = '1'; break;
+  89   6                     }
+  90   5                  }
+  91   4               }
+  92   3               else {                           // daca codul tastei apasate acum e diferit de cel memorat
+  93   4                  keypress_detected = 0;           // nu mai este detectata nicio apasare
+  94   4                  key_released = 1;                // nu mai este apasata nicio tasta
+  95   4               }
+  96   3            }
+  97   2            if(key_released){                               // daca nu mai este apasata nicio tasta
+  98   3               P4 &= 0x0F;                                     // dezactiveaza si coloana curenta 
+  99   3               if ((val & 0xF0) != 0x10)  P4 |= val >> 1;      // daca nu a fost ultima coloana, trece la urmatoarea 
+ 100   3               else P4 |= 0x80;                                // altfel, reia de la prima coloana
+ 101   3            }
+ 102   2         }
+ 103   1      }
+ 104          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    647    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      8    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

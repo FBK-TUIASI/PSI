@@ -1,0 +1,12 @@
+".\BIG8051\Objects\osc.obj",
+".\BIG8051\Objects\wdt.obj",
+".\BIG8051\Objects\port.obj",
+".\BIG8051\Objects\timer.obj",
+".\BIG8051\Objects\lcd.obj",
+".\BIG8051\Objects\keyboard.obj",
+".\BIG8051\Objects\uart0.obj",
+".\BIG8051\Objects\can.obj",
+".\BIG8051\Objects\TestCAN.obj" 
+TO ".\BIG8051\Objects\Test" 
+PRINT(".\BIG8051\Listings\Test.m51") RAMSIZE(256) 
+DISABLEWARNING (16) 
