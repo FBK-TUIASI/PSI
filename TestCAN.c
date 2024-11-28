@@ -15,6 +15,7 @@
 #include <lcd.h>
 #include <keyboard.h>
 #include <can.h>
+#include <stdio.h>
 
 extern CAN_Msg CAN_MsgTX, CAN_MsgRX;	// structuri de transmisie  si receptie mesaje CAN
 
@@ -39,7 +40,8 @@ void BIG8051_Init(void){
 // Programul principal
 //************************************************************************************
 void main (void) {
-	unsigned char tasta;
+	unsigned char tasta, counter = 0, iter = 0, buf[16];
+	unsigned int  tx = 0;
 
 	BIG8051_Init();							// Initializare resurse HW & SW BIG8051
 
@@ -50,14 +52,31 @@ void main (void) {
 
 		if (tasta = KEYB_Input()){
 			
-			CAN_MsgTX.Date.Byte[0] = tasta;			// Pune in buffer octetul de transmis
-			CAN_Transmit(1,0,&CAN_MsgTX);				// Transmite datele din buffer cu obiectul 1
-	
-			UART0_Putstr("\r\n\r\nTransmis: ");
-			UART0_Putch(CAN_MsgTX.Date.Byte[0]);				// Afiseaza pe terminal octetul transmis
-			LCD_PutStr(0,0, "Transmis: "); 						
-			LCD_PutByte(LCD_line, LCD_col, CAN_MsgTX.Date.Byte[0]); 		// Afiseaza pe LCD octetul transmis
-		
+//			if('0' < tasta < '9')
+//				tasta -= '0';
+//			else if('A' < tasta < 'D')
+//				tasta -= 'A';
+//			else if(tasta == '*')
+//				tasta = 'E';
+//			else if(tasta == '#')
+//				tasta = 'F';	
+			
+			CAN_MsgTX.Date.Byte[counter] = tasta;			// Pune in buffer octetul de transmis
+			counter++;
+			if (counter >= 8)	{
+				tx++;				
+				counter = 0;
+				CAN_Transmit(1,0,&CAN_MsgTX);				// Transmite datele din buffer cu obiectul 1
+				sprintf(buf, "\r\n\r\nTransmis[%d]: %s", tx,CAN_MsgTX.Date.Byte);
+				UART0_Putstr(buf);
+				sprintf(buf, "Tx[%d]: %s", tx,CAN_MsgTX.Date.Byte);
+				LCD_PutStr(0,0, buf); 						
+
+//				for(iter = 0; iter > 8; iter++){
+//					UART0_PutByteHex(CAN_MsgTX.Date.Byte[iter]);				// Afiseaza pe terminal octetul transmis
+//					LCD_PutByteHex(0, 5 + iter, CAN_MsgTX.Date.Byte[iter]); 		// Afiseaza pe LCD octetul transmis
+//				}
+			}
 		}
 		if(CAN_MsgRX.NewDat){									// S-au primit date noi?
 			CAN_MsgRX.NewDat = 0;									// daca da, sterge indicatorul date noi
@@ -65,7 +84,7 @@ void main (void) {
 			UART0_Putstr("\r\nPrimit: ");
 			UART0_Putch(CAN_MsgRX.Date.Byte[0]);				// afiseaza pe terminal octetul primit
 			LCD_PutStr(1,0, "Primit: "); 							
-			LCD_PutByte(LCD_line, LCD_col, CAN_MsgRX.Date.Byte[0]); 		// afiseaza pe LCD octetul primit
+			LCD_PutByte(1, LCD_col, CAN_MsgRX.Date.Byte[0]); 		// afiseaza pe LCD octetul primit
 		}
 	}
 }

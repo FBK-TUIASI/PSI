@@ -1,4 +1,4 @@
-C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 1   
+C51 COMPILER V9.59.0.0   CAN                                                               11/28/2024 17:43:42 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE CAN
@@ -62,7 +62,7 @@ line level    source
   52   1      
   53   1         CAN0CN  |= 0x41;           // seteaza Test, CCE si INIT
   54   1         
-C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 2   
+C51 COMPILER V9.59.0.0   CAN                                                               11/28/2024 17:43:42 PAGE 2   
 
   55   1         //CAN0TST = 0x18;          // Silent + Lback
   56   1         
@@ -126,7 +126,7 @@ line level    source
  112   1        CAN0ADR = IF1ARB1;       // Selecteaza Arb 1
  113   1      
  114   1         if (CANID_Type == CANID_XTD){
-C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 3   
+C51 COMPILER V9.59.0.0   CAN                                                               11/28/2024 17:43:42 PAGE 3   
 
  115   2            CAN0DAT = (unsigned int) (CANID & 0x0000FFFF);        // incarca cei mai putin semnificativi 16 biti ai ID-ul
              -ui extins
@@ -190,7 +190,7 @@ line level    source
  169   1      }
  170          
  171          // Preia un mesaj receptionat intr-un obiect de intrare
-C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 4   
+C51 COMPILER V9.59.0.0   CAN                                                               11/28/2024 17:43:42 PAGE 4   
 
  172          void CAN_Receive (char MsgObjNum, CAN_Msg *ptr)
  173          {
@@ -254,7 +254,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.59.0.0   CAN                                                               11/14/2024 17:16:23 PAGE 5   
+C51 COMPILER V9.59.0.0   CAN                                                               11/28/2024 17:43:42 PAGE 5   
 
 END OF MODULE INFORMATION.
 
