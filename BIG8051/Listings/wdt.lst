@@ -1,10 +1,10 @@
-C51 COMPILER V9.59.0.0   WDT                                                               11/28/2024 17:43:41 PAGE 1   
+C51 COMPILER V9.59.0.0   WDT                                                               12/05/2024 17:51:04 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE WDT
 OBJECT MODULE PLACED IN .\BIG8051\Objects\wdt.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\wdt.c LARGE OPTIMIZE(1,SPEED) BROWSE INCDIR(.\BIG8051\In
-                    -clude) DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\wdt.lst) TABS(3) OBJECT(.\BIG8051\Objects\wdt.obj)
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\wdt.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\BIG8051\Include)
+                    - DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\wdt.lst) TABS(3) OBJECT(.\BIG8051\Objects\wdt.obj)
 
 line level    source
 
@@ -62,12 +62,12 @@ line level    source
   52   1      }
 
 
-C51 COMPILER V9.59.0.0   WDT                                                               11/28/2024 17:43:41 PAGE 2   
+C51 COMPILER V9.59.0.0   WDT                                                               12/05/2024 17:51:04 PAGE 2   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    112    ----
+   CODE SIZE        =     66    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      5    ----
+   XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

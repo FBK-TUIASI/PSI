@@ -22,7 +22,7 @@ Dialog DLL:      TCYG.DLL V2.72.0.0
  
 <h2>Project:</h2>
 C:\Users\Student\Documents\FBK\CSC-L5\CSC-L5.uvproj
-Project File Date:  11/14/2024
+Project File Date:  12/05/2024
 
 <h2>Output:</h2>
 Rebuild target 'BIG8051'
@@ -33,11 +33,21 @@ compiling timer.c...
 compiling lcd.c...
 compiling keyboard.c...
 compiling uart0.c...
+compiling uart1.c...
 compiling can.c...
 compiling TestCAN.c...
-linking...
-Program Size: data=15.1 xdata=230 code=7508
-".\BIG8051\Objects\Test" - 0 Error(s), 0 Warning(s).
+TestCAN.c(133): error C141: syntax error near 'and', expected ','
+TestCAN.c(133): error C202: 'and': undefined identifier
+TestCAN.c(133): error C141: syntax error near ')', expected ';'
+TestCAN.c(137): error C141: syntax error near 'else', expected '__asm'
+TestCAN.c(137): error C141: syntax error near 'and', expected ','
+TestCAN.c(137): error C202: 'and': undefined identifier
+TestCAN.c(137): error C141: syntax error near ')', expected ';'
+TestCAN.c(142): error C141: syntax error near 'else', expected '__asm'
+TestCAN.c(142): error C141: syntax error near 'and', expected ','
+TestCAN.c(142): error C202: 'and': undefined identifier
+TestCAN.c(142): error C141: syntax error near ')', expected ';'
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

@@ -1,10 +1,10 @@
-C51 COMPILER V9.59.0.0   UART0                                                             11/28/2024 17:43:42 PAGE 1   
+C51 COMPILER V9.59.0.0   UART0                                                             12/05/2024 17:51:04 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE UART0
 OBJECT MODULE PLACED IN .\BIG8051\Objects\uart0.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\uart0.c LARGE OPTIMIZE(1,SPEED) BROWSE INCDIR(.\BIG8051\
-                    -Include) DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\uart0.lst) TABS(3) OBJECT(.\BIG8051\Objects\uart0.obj)
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE BIG8051\Drivers\uart0.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\BIG8051\Includ
+                    -e) DEBUG OBJECTEXTEND PRINT(.\BIG8051\Listings\uart0.lst) TABS(3) OBJECT(.\BIG8051\Objects\uart0.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
                     case 38400: TMR4=RCAP4=0xFFFB;
                              break;
                     case 115200: return 0;
-C51 COMPILER V9.59.0.0   UART0                                                             11/28/2024 17:43:42 PAGE 2   
+C51 COMPILER V9.59.0.0   UART0                                                             12/05/2024 17:51:04 PAGE 2   
 
               
               #endif
@@ -126,7 +126,7 @@ line level    source
  114   1         else check = 0;
  115   1         
  116   1         SFRPAGE = SFRPAGE_save; // reface pagina initiala
-C51 COMPILER V9.59.0.0   UART0                                                             11/28/2024 17:43:42 PAGE 3   
+C51 COMPILER V9.59.0.0   UART0                                                             12/05/2024 17:51:04 PAGE 3   
 
  117   1      
  118   1         return check;                    // returneaza rezultatul testului
@@ -164,11 +164,11 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    779    ----
+   CODE SIZE        =    441    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     22    ----
+   XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----    ----
+   DATA SIZE        =   ----      11
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
