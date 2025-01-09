@@ -5,6 +5,7 @@
 ".\BIG8051\Objects\lcd.obj",
 ".\BIG8051\Objects\keyboard.obj",
 ".\BIG8051\Objects\uart0.obj",
+".\BIG8051\Objects\uart1.obj",
 ".\BIG8051\Objects\can.obj",
 ".\BIG8051\Objects\TestCAN.obj" 
 TO ".\BIG8051\Objects\Test" 

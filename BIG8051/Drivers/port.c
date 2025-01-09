@@ -13,6 +13,8 @@ void PORT_Init (void)
 	
 	P0MDOUT |= 0x01;        // valideaza Tx0 ca iesire push-pull
 	
+	P2MDOUT |= 0x80;        // valideaza P2 ca iesire 
+	
 	P3MDOUT |= 0x3F;			// valideaza P3.5 - P3.0 ca iesiri push-pull (linii de comanda si date LCD)
 	P4MDOUT |= 0xF0;			// valideaza P4.7 - P4.4 ca iesiri push-pull  (comanda coloane Keyboard)
 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.59.0.0   PORT                                                              12/05/2024 17:51:04 PAGE 1   
+C51 COMPILER V9.59.0.0   PORT                                                              01/09/2025 17:54:05 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE PORT
@@ -23,20 +23,22 @@ line level    source
   13   1         
   14   1         P0MDOUT |= 0x01;        // valideaza Tx0 ca iesire push-pull
   15   1         
-  16   1         P3MDOUT |= 0x3F;        // valideaza P3.5 - P3.0 ca iesiri push-pull (linii de comanda si date LCD)
-  17   1         P4MDOUT |= 0xF0;        // valideaza P4.7 - P4.4 ca iesiri push-pull  (comanda coloane Keyboard)
-  18   1      
-  19   1         XBR0 = XBR0_CONFIG;     // valideaza perifericele interne utilizate        
-  20   1         XBR1 = XBR1_CONFIG;              
-  21   1         XBR3 = XBR3_CONFIG;              
-  22   1         XBR2 = XBR2_CONFIG;     // valideaza crossbar switch si weak pull-ups interne
-  23   1      
-  24   1         SFRPAGE = SFRPAGE_save; // Reface SFRPAGE 
-  25   1      }
+  16   1         P2MDOUT |= 0x80;        // valideaza P2 ca iesire 
+  17   1         
+  18   1         P3MDOUT |= 0x3F;        // valideaza P3.5 - P3.0 ca iesiri push-pull (linii de comanda si date LCD)
+  19   1         P4MDOUT |= 0xF0;        // valideaza P4.7 - P4.4 ca iesiri push-pull  (comanda coloane Keyboard)
+  20   1      
+  21   1         XBR0 = XBR0_CONFIG;     // valideaza perifericele interne utilizate        
+  22   1         XBR1 = XBR1_CONFIG;              
+  23   1         XBR3 = XBR3_CONFIG;              
+  24   1         XBR2 = XBR2_CONFIG;     // valideaza crossbar switch si weak pull-ups interne
+  25   1      
+  26   1         SFRPAGE = SFRPAGE_save; // Reface SFRPAGE 
+  27   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     29    ----
+   CODE SIZE        =     32    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
