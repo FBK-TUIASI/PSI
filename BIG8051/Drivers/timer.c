@@ -29,6 +29,28 @@ void Delay(int ms){				  // intarziere programabila
 	while(timeval);				   	// asteapta pana timeval=0 (decrementat in functia de intrerupere)
 }
 
+// Netestat :(
+void Delay_us(unsigned int us){
+    unsigned int counts;
+    unsigned char SFRPAGE_save = SFRPAGE;
+
+    SFRPAGE = TMR2_PAGE;
+
+    counts = (us * SYSCLK) / 1000000;
+
+    RCAP2 = 65536 - counts;
+    TMR2 = 0xFFFF;
+    TR2 = 1;
+
+    // Wait for the timer to finish
+    while (TMR2CN & 0x80); // Wait for TF2 flag
+
+    TR2 = 0; // Stop the timer
+
+    SFRPAGE = SFRPAGE_save;
+}
+
+
 unsigned char T2flag, T3flag, T4flag;
 
 //-----------------------------------------------------------------------------

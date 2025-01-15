@@ -9,6 +9,7 @@ sfr16 TMR4     = 0xCC;                 	// Timer4 counter
 
 void Timer0_Init(void);
 void Delay(int ms);
+void Delay_us(unsigned int us);
 
 void Timer2_Init (unsigned int counts);
 void Timer3_Init (unsigned int counts);
