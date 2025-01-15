@@ -37,6 +37,15 @@
 #define Gb		369.994
 #define G 		391.995
 
+// #define US
+
+#ifdef US
+	#define USE_US	true
+#endif
+
+#ifndef US
+	#define USE_US	false
+#endif
 
 extern CAN_Msg CAN_MsgTX, CAN_MsgRX;	// structuri de transmisie  si receptie mesaje CAN
 
@@ -142,20 +151,20 @@ void buzzer(int t, double f, bool in_us){
 void song(){
 	int bpms = 1600;	// bit per ms
 
-	buzzer(bpms/2, G, false);
-	buzzer(bpms/2^3, 0.0, false);
-	buzzer(bpms/2, Gb, false);
-	buzzer(bpms/2^3, 0.0, false);
-	buzzer(bpms/2, F, false);
-	buzzer(bpms/2^3, 0.0, false);
-	buzzer(bpms/2^3, E, false);
-	buzzer(bpms/2^5, 0.0, false);
-	buzzer(bpms/2^3, E, false);
-	buzzer(bpms/2^5, 0.0, false);
-	buzzer(bpms/2^3, E, false);
-	buzzer(bpms/2^5, 0.0, false);
-	buzzer(bpms/2^3, E, false);
-	buzzer(bpms/2^5, 0.0, false);
+	buzzer(bpms/2, G, USE_US);
+	buzzer(bpms/2^3, 0.0, USE_US);
+	buzzer(bpms/2, Gb, USE_US);
+	buzzer(bpms/2^3, 0.0, USE_US);
+	buzzer(bpms/2, F, USE_US);
+	buzzer(bpms/2^3, 0.0, USE_US);
+	buzzer(bpms/2^3, E, USE_US);
+	buzzer(bpms/2^5, 0.0, USE_US);
+	buzzer(bpms/2^3, E, USE_US);
+	buzzer(bpms/2^5, 0.0, USE_US);
+	buzzer(bpms/2^3, E, USE_US);
+	buzzer(bpms/2^5, 0.0, USE_US);
+	buzzer(bpms/2^3, E, USE_US);
+	buzzer(bpms/2^5, 0.0, USE_US);
 }
 
 //************************************************************************************
