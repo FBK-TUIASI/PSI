@@ -53,6 +53,19 @@ void buzzer(t){
     }
 }
 
+void led_pulse(t){
+    int ms = 0;
+    while(ms < t/2)
+    {
+        led0 = 1;
+        Delay(500);
+        led0 = 0;
+        Delay(500);
+        ms++;
+    }
+}
+
+
 //************************************************************************************
 // Programul principal
 //************************************************************************************
@@ -125,11 +138,24 @@ void main (void) {
                     {
                         LCD_PutStr(0, 0, "Request");
                         LCD_PutStr(1, 0, "Service 2F     ");
+												led_pulse(5000);
                         
                     }else if((unsigned int)CAN_MsgRX.Date.Byte[0] == 0x14)
                     {
                         LCD_PutStr(0, 0, "Request");
                         LCD_PutStr(1, 0, "Service 14     ");
+												Delay(3000);
+												LCD_Clear();
+												LCD_PutStr(0, 0, "Clear Diagnostic ");
+                        LCD_PutStr(1, 0, "Information ");
+												Delay(3000);
+												LCD_Clear();
+												LCD_PutStr(0, 0, "Clear Diagnostic ");
+                        LCD_PutStr(1, 0, "Information ");
+												Delay(3000);
+												LCD_Clear();
+												led0 = 0;
+												buzz = 0;
                     }
                     
                 }else                    
